@@ -1,7 +1,26 @@
 # .001_Cline
 
+[![Validate](https://github.com/kas1987/.001_Cline/actions/workflows/validate.yml/badge.svg)](https://github.com/kas1987/.001_Cline/actions/workflows/validate.yml)
+
 A workspace repo for [Cline](https://cline.bot) setup, best practices, and autonomous-execution
 configuration across VS Code and VS Code Insiders.
+
+## Repo Structure
+
+```
+.001_Cline/
+├── .clinerules/            # Rules Cline auto-loads for every task in this repo
+├── .github/
+│   ├── ISSUE_TEMPLATE/     # Triage-labeled bug & feature forms
+│   ├── workflows/          # CI: validate.yml (required check on main)
+│   └── pull_request_template.md
+├── scripts/
+│   └── validate_repo.py    # Local/CI quality gate
+├── _Per_Cline_Chat/        # Working notes and chat artifacts
+├── CONTRIBUTING.md         # Operating standard + PR rules
+├── REPO_STATUS.md          # Living status board
+└── SECURITY.md             # Vulnerability reporting policy
+```
 
 ## Contents
 

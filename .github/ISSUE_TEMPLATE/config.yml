@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Cline Documentation
+    url: https://docs.cline.bot
+    about: Official Cline docs (Plan/Act, Auto Approve, rules, MCP).
+  - name: Cline GitHub Issues
+    url: https://github.com/cline/cline/issues
+    about: Problems with the Cline extension itself belong upstream.

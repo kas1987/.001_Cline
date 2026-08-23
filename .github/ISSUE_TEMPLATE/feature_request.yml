@@ -1,0 +1,41 @@
+name: Feature Request
+description: Propose a rule, workflow, or documentation improvement
+title: "Feature: "
+labels: ["enhancement", "triage"]
+body:
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal
+      description: What should this feature accomplish?
+    validations:
+      required: true
+  - type: dropdown
+    id: lane
+    attributes:
+      label: Change Lane
+      options:
+        - Cline rules / workflow
+        - CI / Governance
+        - Docs
+        - Housekeeping
+    validations:
+      required: true
+  - type: textarea
+    id: deliverables
+    attributes:
+      label: Deliverables
+      description: List files, docs, scripts, or rules expected.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance Criteria
+      description: How do we know this is done?
+    validations:
+      required: true
+  - type: textarea
+    id: risks
+    attributes:
+      label: Risks / Branch Points
