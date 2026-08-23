@@ -19,6 +19,6 @@ Workspace repo for Cline setup, best practices, and ClinePass Plan/Act model gui
 
 ## Known Gaps / Next Work
 
+- [x] Dependabot for action version bumps (`actions/checkout`, `actions/setup-python`) — weekly, grouped
 - [ ] Add per-repo Cline rule packs as they evolve
-- [ ] Consider dependabot for action version bumps (`actions/checkout`, `actions/setup-python`)
 - [ ] Move `_Per_Cline_Chat` notes into structured `docs/` once they stabilize
