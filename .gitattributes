@@ -1,0 +1,12 @@
+# Normalize line endings: repo stores LF, Windows checks out LF (consistent with editorconfig)
+* text=auto eol=lf
+
+# Windows scripts must keep CRLF if any are added later
+*.ps1 text eol=crlf
+*.bat text eol=crlf
+
+# Binaries
+*.odt binary
+*.png binary
+*.jpg binary
+*.ico binary
