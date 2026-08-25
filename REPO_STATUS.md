@@ -1,6 +1,6 @@
 # Repo Status — .001_Cline
 
-Last updated: 2026-08-23
+Last updated: 2026-08-25
 
 ## Purpose
 
@@ -16,6 +16,7 @@ Workspace repo for Cline setup, best practices, and ClinePass Plan/Act model gui
 | Cline rules (`.clinerules/01-workflow.md`) | ✅ In place |
 | Branch protection on `main` | ✅ Configured via `gh api` |
 | Model pairing guide | ✅ In README |
+| ClinePass per-token pricing reference | ✅ `CLINEPASS_PRICING.md` |
 
 ## Known Gaps / Next Work
 

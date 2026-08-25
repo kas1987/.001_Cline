@@ -31,6 +31,9 @@ configuration across VS Code and VS Code Insiders.
 
 ## Recommended ClinePass model pairings (Plan → Act)
 
+> **Per-token reference pricing** and full model catalog: see
+> [CLINEPASS_PRICING.md](./CLINEPASS_PRICING.md).
+
 | Scenario | Plan Mode | Act Mode |
 |---|---|---|
 | Default daily driver | `cline-pass/qwen3.8-max` | `cline-pass/kimi-k2.7-code` |
