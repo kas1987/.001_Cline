@@ -49,6 +49,19 @@
 - **Impact:** Batch ClinePass work in bursts, space sessions apart
 - **Action:** Schedule complex work within 5-hour windows
 
+#### Finding 6: Current Usage Pattern Confirms Best Practice
+- **Observation (Aug 27 daily):** Only 1 session today, 100% free model usage
+- **Cost impact:** $0.04 daily delta — negligible
+- **Implication:** The 80/20 free/premium split is working as designed
+- **Insight:** Routine tasks (config fixes, minor updates) don't need ClinePass
+- **Action:** Continue defaulting to stealth/ox-alpha for daily work. Save ClinePass for complex refactors only.
+
+#### Finding 7: "Free" Models May Have Minimal Micro-Charges
+- **Observation:** poolside/laguna-s-2.1:free shows $0.0357 for 17M tokens
+- **This is NOT the ClinePass overflow** — it's likely a tiny per-token fee
+- **Impact:** Practically free (0.2% of daily budget), but not literally $0.00
+- **Action:** Monitor but don't over-optimize around micro-charges
+
 ### Best Practices Established
 
 1. **Model Selection Hierarchy:**
@@ -123,6 +136,7 @@
 | Month | Sessions | Total Cost | CP Cost | Free % | Daily Avg | Budget Used |
 |-------|----------|------------|---------|--------|-----------|-------------|
 | Aug 2026 | 21 | $1.36 | $1.04 | 57% | $0.27 | 5.4% of $25 |
+| Aug 2026 (daily) | 1 | $0.04 | $0.00 | 100% | $0.04 | 0.2% of $25 |
 | Sep 2026 | | | | | | |
 | Oct 2026 | | | | | | |
 
