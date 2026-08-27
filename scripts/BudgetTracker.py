@@ -12,8 +12,9 @@ from pathlib import Path
 from collections import defaultdict
 
 SESSIONS_DIR = Path.home() / ".cline" / "data" / "sessions"
-CONFIG_FILE = Path.home() / "Cline_Master" / "_Per_Cline_Chat" / "budget_config.json"
-USAGE_LOG = Path.home() / "Cline_Master" / "_Per_Cline_Chat" / "usage_log.csv"
+_REPO_ROOT = Path(__file__).resolve().parent.parent
+CONFIG_FILE = _REPO_ROOT / "_Per_Cline_Chat" / "budget_config.json"
+USAGE_LOG = _REPO_ROOT / "_Per_Cline_Chat" / "usage_log.csv"
 
 FREE_MODELS = ("stealth/ox-alpha",)
 MONTHLY_BUDGET_DEFAULT = 9.99

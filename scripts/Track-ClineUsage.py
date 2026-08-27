@@ -14,10 +14,8 @@ from datetime import datetime
 from pathlib import Path
 
 SESSIONS_DIR = Path(os.path.expanduser("~")) / ".cline" / "data" / "sessions"
-LOG_DIR = Path(os.path.expanduser("~")) / "Cline_Master" / "_Per_Cline_Chat"
-# Resolve the script's real location via the absolute sessions dir parent trick
-_SCRIPT_ABS = Path(os.path.abspath(__file__))
-LOG_DIR = _SCRIPT_ABS.parent.parent / "_Per_Cline_Chat"
+_REPO_ROOT = Path(os.path.abspath(__file__)).parent.parent
+LOG_DIR = _REPO_ROOT / "_Per_Cline_Chat"
 LOG_FILE = LOG_DIR / "usage_log.csv"
 CSV_FIELDS = [
     "timestamp", "total_sessions", "total_input_tokens",
