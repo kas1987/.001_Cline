@@ -1,40 +1,58 @@
-# ClinePass Usage Tracker
-# Run this script to generate a usage report from Cline CLI sessions
-# Usage: .\Track-ClineUsage.ps1
+# ClinePass Usage Logger
+# Appends a usage snapshot to a persistent log file, independent of Cline's own logs.
+# Run daily (via Task Scheduler or manually) to build trend data.
+# Usage: .\Log-ClineUsage.ps1
+#
+# Output: _Per_Cline_Chat/usage_log.csv
+# Each row: timestamp, sessions, total_in, total_out, total_cache, total_cost, by_model_json
 
-$sessions = Get-ChildItem "$env:USERPROFILE\.cline\data\sessions" -Directory
+$homeDir = [Environment]::GetFolderPath("UserProfile")
+$sessionsDir = Join-Path $homeDir ".cline\data\sessions"
+$logDir = Join-Path $PSScriptRoot "..\_Per_Cline_Chat"
+$logFile = Join-Path $logDir "usage_log.csv"
+
+# Ensure log directory exists
+if (-not (Test-Path $logDir)) {
+    New-Item -ItemType Directory -Path $logDir -Force | Out-Null
+}
+
+# Initialize CSV with headers if missing
+if (-not (Test-Path $logFile)) {
+    "timestamp,total_sessions,total_input_tokens,total_output_tokens,total_cache_tokens,total_reference_cost,clinepass_sessions,clinepass_cost,model_breakdown" | Out-File $logFile -Encoding UTF8
+}
+
+# Parse all sessions
+$sessions = Get-ChildItem $sessionsDir -Directory -ErrorAction SilentlyContinue
 $report = @{
     totalSessions = 0
     totalInput = 0
     totalOutput = 0
-    totalCacheRead = 0
-    totalCacheWrite = 0
+    totalCache = 0
     totalCost = 0
+    clinePassSessions = 0
+    clinePassCost = 0
     byModel = @{}
-    byDate = @{}
-    clinePassSessions = @()
 }
 
-foreach ($s in $sessions) {
-    $jsonPath = "$($s.FullName)\$($s.Name).json"
+foreach ($s in sessions) {
+    $jsonPath = Join-Path $s.FullName "$($s.Name).json"
     if (-not (Test-Path $jsonPath)) { continue }
-    
-    $json = Get-Content $jsonPath -Raw | ConvertFrom-Json
+
+    try {
+        $json = Get-Content $jsonPath -Raw | ConvertFrom-Json
+    } catch { continue }
+
     if (-not $json.metadata.usage) { continue }
-    
+
     $u = $json.metadata.usage
     $model = $json.model
-    $date = $json.started_at.Substring(0, 10)
-    
-    # Update totals
+
     $report.totalSessions++
     $report.totalInput += $u.inputTokens
     $report.totalOutput += $u.outputTokens
-    $report.totalCacheRead += $u.cacheReadTokens
-    $report.totalCacheWrite += $u.cacheWriteTokens
+    $report.totalCache += $u.cacheReadTokens
     $report.totalCost += $u.totalCost
-    
-    # Track by model
+
     if (-not $report.byModel[$model]) {
         $report.byModel[$model] = @{ input = 0; output = 0; cache = 0; cost = 0; count = 0 }
     }
@@ -43,49 +61,54 @@ foreach ($s in $sessions) {
     $report.byModel[$model].cache += $u.cacheReadTokens
     $report.byModel[$model].cost += $u.totalCost
     $report.byModel[$model].count++
-    
-    # Track by date
-    if (-not $report.byDate[$date]) {
-        $report.byDate[$date] = @{ input = 0; output = 0; cache = 0; cost = 0 }
-    }
-    $report.byDate[$date].input += $u.inputTokens
-    $report.byDate[$date].output += $u.outputTokens
-    $report.byDate[$date].cache += $u.cacheReadTokens
-    $report.byDate[$date].cost += $u.totalCost
-    
-    # Track ClinePass sessions
+
     if ($model -like "cline-pass/*") {
-        $report.clinePassSessions += @{
-            session = $s.Name
-            model = $model
-            input = $u.inputTokens
-            output = $u.outputTokens
-            cache = $u.cacheReadTokens
-            cost = $u.totalCost
-        }
+        $report.clinePassSessions++
+        $report.clinePassCost += $u.totalCost
     }
 }
 
-# Output summary
-Write-Output "=== Cline CLI Usage Report ==="
-Write-Output "Generated: $(Get-Date -Format 'yyyy-MM-dd HH:mm')"
-Write-Output ""
-Write-Output "Total Sessions: $($report.totalSessions)"
-Write-Output "Total Input: $([math]::Round($report.totalInput / 1000000, 2))M tokens"
-Write-Output "Total Output: $([math]::Round($report.totalOutput / 1000000, 2))M tokens"
-Write-Output "Total Cache Read: $([math]::Round($report.totalCacheRead / 1000000, 2))M tokens"
-Write-Output "Total Cost: `$$([math]::Round($report.totalCost, 4))"
-Write-Output ""
-Write-Output "=== By Model ==="
-foreach ($model in $report.byModel.Keys | Sort-Object) {
-    $m = $report.byModel[$model]
-    Write-Output "$model | $($m.count) sessions | In: $([math]::Round($m.input / 1000000, 2))M | Out: $([math]::Round($m.output / 1000000, 2))M | Cost: `$$([math]::Round($m.cost, 4))"
+# Build model breakdown JSON
+$modelBreakdown = @{}
+foreach ($m in $report.byModel.Keys) {
+    $v = $report.byModel[$m]
+    $modelBreakdown[$m] = @{
+        sessions = $v.count
+        input = $v.input
+        output = $v.output
+        cache = $v.cache
+        cost = [math]::Round($v.cost, 6)
+    }
 }
+$breakdownJson = ($modelBreakdown | ConvertTo-Json -Compress)
+
+# Append to CSV
+$timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+$row = "$timestamp,$($report.totalSessions),$($report.totalInput),$($report.totalOutput),$($report.totalCache),$([math]::Round($report.totalCost, 6)),$($report.clinePassSessions),$([math]::Round($report.clinePassCost, 6)),`"$breakdownJson`""
+$row | Out-File $logFile -Append -Encoding UTF8
+
+# Console summary
+Write-Output "=== Usage Snapshot Logged ==="
+Write-Output "Timestamp:  $timestamp"
+Write-Output "Sessions:   $($report.totalSessions)"
+Write-Output "Input:      $([math]::Round($report.totalInput / 1e6, 2))M tokens"
+Write-Output "Output:     $([math]::Round($report.totalOutput / 1e6, 2))M tokens"
+Write-Output "Cache:      $([math]::Round($report.totalCache / 1e6, 2))M tokens"
+Write-Output "Cost:       `$$([math]::Round($report.totalCost, 4))"
+Write-Output "ClinePass:  $($report.clinePassSessions) sessions / `$$([math]::Round($report.clinePassCost, 4))"
 Write-Output ""
-Write-Output "=== ClinePass Sessions ==="
-Write-Output "$($report.clinePassSessions.Count) sessions using ClinePass"
-$clinePassTotal = 0
-foreach ($cp in $report.clinePassSessions) {
-    $clinePassTotal += $cp.cost
+Write-Output "Log saved: $logFile"
+Write-Output ""
+Write-Output "=== Trend (last 10 snapshots) ==="
+if (Test-Path $logFile) {
+    $allRows = Get-Content $logFile | Select-Object -Skip 1 | Select-Object -Last 10
+    foreach ($r in $allRows) {
+        $parts = $r.Split(',')
+        $ts = $parts[0]
+        $sess = $parts[1]
+        $cost = $parts[5]
+        $cpSess = $parts[6]
+        Write-Output "  $ts | $sess sessions | `$$cost | ClinePass: $cpSess"
+    }
 }
-Write-Output "Total ClinePass Cost: `$$([math]::Round($clinePassTotal, 4))"
+
